@@ -1,11 +1,16 @@
 import express from "express";
 import * as dotenv from "dotenv";
 import mongoose from "mongoose";
+import { userRouter } from "./router/user";
+import { todoRouter } from "./router/todo";
 dotenv.config();
+
 const app = express();
 
 //Middleware
 app.use(express.json());
+app.use("/api/v1/user",userRouter);
+app.use("/api/v1/todo",todoRouter);
 
 
 
