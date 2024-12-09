@@ -75,8 +75,12 @@ todoRouter.put("/update", auth , async (req : Request , res : Response) => {
         return 
     }
     try{
-    
-        const post = await todoModel.findByIdAndUpdate({
+        const verify = await todoModel.findOne({
+            _id : req.body.postid
+        })
+
+        if(verify){
+            const post = await todoModel.findByIdAndUpdate({
                 _id : req.body.postid
             },{
                 title : req.body.title,
@@ -87,6 +91,12 @@ todoRouter.put("/update", auth , async (req : Request , res : Response) => {
                 msg : "Update successfully",
                 content: post
             })
+
+        }else{
+            res.status(404).json({
+                msg : "Post does not exist"
+            })
+        }
             
         }catch(e){
         res.status(500).json({
@@ -109,14 +119,24 @@ todoRouter.delete("/remove", auth , async (req : Request , res : Response) => {
         return 
     }
     try{
-        const content = await todoModel.deleteMany({
+        const verify = await todoModel.findOne({
             _id : req.body.postid
         })
 
-        res.status(200).json({
-            msg : "Deleted Successfully"
-        })
+        if(verify){
+            const content = await todoModel.deleteMany({
+                _id : req.body.postid
+            })
+    
+            res.status(200).json({
+                msg : "Deleted Successfully"
+            })
 
+        }else{
+            res.status(404).json({
+                msg : "Id does not exists"
+            })
+        }
 
     }catch(e){
         res.status(500).json({
