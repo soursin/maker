@@ -14,9 +14,8 @@ todoRouter.get("/", auth ,async (req : Request , res : Response) => {
     try{
         const posts = await todoModel.find({
             userId
-        })
-        // }).populate("userId",["username"])
-
+        }).populate("userId",["username"])
+        
         res.status(200).json({
             contents : posts
         })
@@ -61,13 +60,19 @@ todoRouter.post("/add", auth ,  async (req : Request , res : Response) => {
     }
 })
 
-todoRouter.put("/update", auth , async (req : Request , res : Response) => {
+todoRouter.put("/update/:postid", auth , async (req : Request , res : Response) => {
     const inputSchema = z.object({
         postid : z.string(),
         title : z.string().optional(),
         done : z.boolean().optional()
     })
-    const validateInput = inputSchema.safeParse(req.body);
+
+    const obj = {
+        postid : req.params.postid,
+        title : req.body.title,
+        done : req.body.done
+    }
+    const validateInput = inputSchema.safeParse(obj);
     if(!validateInput.success){
         res.status(403).json({
             error : validateInput.error
@@ -76,12 +81,12 @@ todoRouter.put("/update", auth , async (req : Request , res : Response) => {
     }
     try{
         const verify = await todoModel.findOne({
-            _id : req.body.postid
+            _id : req.params.postid
         })
 
         if(verify){
             const post = await todoModel.findByIdAndUpdate({
-                _id : req.body.postid
+                _id : req.params.postid
             },{
                 title : req.body.title,
                 done : req.body.done
@@ -107,11 +112,14 @@ todoRouter.put("/update", auth , async (req : Request , res : Response) => {
 })
   
 
-todoRouter.delete("/remove", auth , async (req : Request , res : Response) => {
+todoRouter.delete("/remove/:postid", auth , async (req : Request , res : Response) => {
     const inputSchema = z.object({
         postid : z.string()
     })
-    const validateInput = inputSchema.safeParse(req.body);
+    const obj = {
+        postid : req.params.postid
+    }
+    const validateInput = inputSchema.safeParse(obj);
     if(!validateInput.success){
         res.status(403).json({
             error : validateInput.error
@@ -120,12 +128,12 @@ todoRouter.delete("/remove", auth , async (req : Request , res : Response) => {
     }
     try{
         const verify = await todoModel.findOne({
-            _id : req.body.postid
+            _id : req.params.postid
         })
 
         if(verify){
             const content = await todoModel.deleteMany({
-                _id : req.body.postid
+                _id : req.params.postid
             })
     
             res.status(200).json({

@@ -3,6 +3,7 @@ import * as dotenv from "dotenv"
 import {z} from "zod"
 import bcrypt from "bcrypt"
 import { userModel } from "../model/db";
+import { auth } from "../auth/userMiddleware";
 import jwt,{Secret} from "jsonwebtoken";
 export const userRouter = express.Router();
 dotenv.config();
@@ -12,6 +13,12 @@ interface User {
     email : String,
     password : String
 }
+
+interface CustomReq extends Request{
+    userId : String
+}
+
+
 
 userRouter.post("/signup", async (req : Request , res : Response) => {
    
@@ -55,7 +62,6 @@ userRouter.post("/signup", async (req : Request , res : Response) => {
 })
 
 userRouter.post("/login", async (req : Request , res : Response) => {
-
     const inputBody = z.object({
         email : z.string(),
         password : z.string()
